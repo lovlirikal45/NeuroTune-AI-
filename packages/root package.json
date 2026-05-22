@@ -1,0 +1,13 @@
+{
+  "name": "neurotune-ai",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "echo dev",
+    "build": "echo build",
+    "start": "echo start"
+  }
+}
