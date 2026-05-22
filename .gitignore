@@ -1,0 +1,14 @@
+node_modules
+dist
+build
+coverage
+.env
+.env.*
+.cache
+.next
+turbo
+pnpm-lock.yaml
+*.log
+.idea
+.vscode
+.DS_Store
