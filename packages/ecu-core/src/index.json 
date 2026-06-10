@@ -1,0 +1,14 @@
+// ECU Core - Point d'entrée principal
+export { BinaryParser } from './parser/BinaryParser';
+export type { ParserOptions } from './parser/BinaryParser';
+
+export { BaseEcuPlugin } from './plugins/BasePlugin';
+export type { EcuPlugin } from './plugins/BasePlugin';
+
+export { BoschPlugin } from './plugins/BoschPlugin';
+export { SiemensPlugin } from './plugins/SiemensPlugin';
+export { DelphiPlugin } from './plugins/DelphiPlugin';
+
+export { ChecksumValidator } from './utils/ChecksumValidator';
+export { EndianessDetector } from './utils/EndianessDetector';
+export { StructureAnalyzer } from './utils/StructureAnalyzer';
