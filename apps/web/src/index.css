@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-cyber-border;
+  }
+  
+  body {
+    @apply bg-cyber-bg text-white;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-cyber-bg;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-cyber-border rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-cyber-primary/50;
+  }
+}
+
+@layer components {
+  .btn-cyber {
+    @apply px-4 py-2 bg-cyber-surface border border-cyber-primary/30 
+           text-cyber-primary font-mono text-sm rounded
+           hover:bg-cyber-primary/10 hover:border-cyber-primary/60
+           transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-cyber-primary/50;
+  }
+  
+  .btn-cyber-danger {
+    @apply btn-cyber border-cyber-danger/30 text-cyber-danger
+           hover:bg-cyber-danger/10 hover:border-cyber-danger/60;
+  }
+  
+  .card-cyber {
+    @apply bg-cyber-surface border border-cyber-border rounded-lg p-4
+           shadow-lg shadow-black/20;
+  }
+  
+  .input-cyber {
+    @apply bg-cyber-bg border border-cyber-border rounded px-3 py-2
+           text-white font-mono text-sm
+           focus:outline-none focus:border-cyber-primary/50
+           placeholder:text-gray-600;
+  }
+  
+  .glow-text {
+    @apply text-cyber-primary;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+  }
+  
+  .hex-grid {
+    background-image: 
+      linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+}
