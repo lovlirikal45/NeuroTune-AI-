@@ -122,4 +122,84 @@ export class WinOLSParser {
   private convertKPToCanonical(
     kpMap: KPMap, 
     metadata: MapConversionMetadata
-  ): CanonicalMap
+  ): CanonicalMapDTO {
+    return {
+      id: this.generateMapId(kpMap.address),
+      name: kpMap.name,
+      type: kpMap.axisCount === 1 ? '2D' : '3D',
+      address: kpMap.address,
+      axes: kpMap.axes.map((axis, index) => ({
+        name: metadata.axisNames?.[index] || `Axis ${index + 1}`,
+        unit: metadata.axisUnits?.[index] || 'raw',
+        values: axis
+      })),
+      values: kpMap.values,
+      metadata: {
+        source: 'WINOLS_KP',
+        conversionDate: new Date().toISOString(),
+        originalFormat: 'KP',
+        ecuType: metadata.ecuType,
+        softwareVersion: metadata.softwareVersion
+      }
+    };
+  }
+
+  private splitOLSSections(buffer: Buffer): Buffer[] {
+    const sections: Buffer[] = [];
+    let offset = 0;
+
+    while (offset < buffer.length) {
+      const sectionSize = buffer.readUInt32LE(offset);
+      if (sectionSize === 0 || offset + sectionSize > buffer.length) break;
+      
+      sections.push(buffer.slice(offset, offset + sectionSize));
+      offset += sectionSize;
+    }
+
+    return sections;
+  }
+
+  private isMapSection(section: Buffer): boolean {
+    return section.toString('ascii', 4, 8) === 'MAP ';
+  }
+
+  private parseOLSMapSection(section: Buffer): OLSMap {
+    return {
+      name: section.toString('utf8', 8, 40).replace(/\0/g, ''),
+      address: section.readUInt32LE(40),
+      type: section.readUInt8(44),
+      data: section.slice(48)
+    };
+  }
+
+  private convertOLSToCanonical(olsMap: OLSMap): CanonicalMapDTO {
+    return {
+      id: this.generateMapId(olsMap.address),
+      name: olsMap.name,
+      type: olsMap.type === 1 ? '2D' : '3D',
+      address: olsMap.address,
+      axes: [],
+      values: [],
+      metadata: {
+        source: 'WINOLS_OLS',
+        conversionDate: new Date().toISOString(),
+        originalFormat: 'OLS'
+      }
+    };
+  }
+
+  private readVersion(buffer: Buffer): string {
+    return `${buffer.readUInt16LE(8)}.${buffer.readUInt16LE(10)}`;
+  }
+
+  private extractMetadata(buffer: Buffer): MapConversionMetadata {
+    return {
+      ecuType: buffer.toString('ascii', 12, 32).replace(/\0/g, ''),
+      softwareVersion: buffer.toString('ascii', 32, 48).replace(/\0/g, '')
+    };
+  }
+
+  private generateMapId(address: number): string {
+    return `map_${address.toString(16).padStart(8, '0')}`;
+  }
+}
