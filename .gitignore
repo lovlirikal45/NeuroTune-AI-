@@ -1,4 +1,52 @@
-node_modules
-dist
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build
+dist/
+.next/
+build/
+out/
+
+# Environment
 .env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temp
+tmp/
+temp/
+*.tmp
+
+# AI Models
+*.pth
+*.onnx
+*.h5
+models/
+
+# ECU Files (security)
+*.bin
+*.hex
+*.kp
+*.ols
+
+# Docker
+docker-compose.override.yml
