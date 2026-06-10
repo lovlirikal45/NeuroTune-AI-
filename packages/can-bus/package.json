@@ -1,0 +1,19 @@
+{
+  "name": "@neurotune/can-bus",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CAN bus communication library",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@neurotune/shared-types": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@types/node": "^20.0.0"
+  }
+}
