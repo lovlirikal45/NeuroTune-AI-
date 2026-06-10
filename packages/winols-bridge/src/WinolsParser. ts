@@ -1,0 +1,125 @@
+import { Buffer } from 'buffer';
+import { 
+  WinOLSProject, 
+  KPMap, 
+  OLSMap, 
+  CanonicalMapDTO,
+  MapConversionMetadata 
+} from '@neurotune/shared-types';
+
+export class WinOLSParser {
+  private readonly MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
+  private readonly SANDBOX_MODE = process.env.NODE_ENV !== 'development';
+
+  /**
+   * Parse KP (Knowledge Pack) file
+   */
+  async parseKPFile(buffer: Buffer): Promise<CanonicalMapDTO[]> {
+    this.validateInput(buffer);
+    
+    const maps: CanonicalMapDTO[] = [];
+    const project = await this.parseWinOLSProject(buffer);
+    
+    for (const map of project.maps) {
+      maps.push(this.convertKPToCanonical(map, project.metadata));
+    }
+
+    return maps;
+  }
+
+  /**
+   * Parse OLS (Overlay Settings) file
+   */
+  async parseOLSFile(buffer: Buffer): Promise<CanonicalMapDTO[]> {
+    this.validateInput(buffer);
+    
+    const maps: CanonicalMapDTO[] = [];
+    const sections = this.splitOLSSections(buffer);
+    
+    for (const section of sections) {
+      if (this.isMapSection(section)) {
+        const map = this.parseOLSMapSection(section);
+        maps.push(this.convertOLSToCanonical(map));
+      }
+    }
+
+    return maps;
+  }
+
+  private validateInput(buffer: Buffer): void {
+    if (buffer.length > this.MAX_FILE_SIZE) {
+      throw new Error(`File size exceeds maximum: ${buffer.length} bytes`);
+    }
+
+    if (buffer.length < 64) {
+      throw new Error('File too small to be a valid WinOLS file');
+    }
+
+    // Valider les magic bytes
+    const magic = buffer.toString('ascii', 0, 8);
+    if (!magic.startsWith('WOLS') && !magic.startsWith('KP01')) {
+      throw new Error('Invalid WinOLS file format');
+    }
+  }
+
+  private async parseWinOLSProject(buffer: Buffer): Promise<WinOLSProject> {
+    const project: WinOLSProject = {
+      version: this.readVersion(buffer),
+      metadata: this.extractMetadata(buffer),
+      maps: [],
+      checksums: []
+    };
+
+    const mapCount = buffer.readUInt32LE(16);
+    let offset = 20;
+
+    for (let i = 0; i < mapCount; i++) {
+      const map = this.parseKPMap(buffer, offset);
+      project.maps.push(map);
+      offset += map.size;
+    }
+
+    return project;
+  }
+
+  private parseKPMap(buffer: Buffer, offset: number): KPMap {
+    const nameLength = buffer.readUInt8(offset);
+    const name = buffer.toString('utf8', offset + 1, offset + 1 + nameLength);
+    
+    const axisCount = buffer.readUInt8(offset + 1 + nameLength);
+    const axisSize = buffer.readUInt8(offset + 2 + nameLength);
+    
+    const map: KPMap = {
+      name,
+      address: buffer.readUInt32LE(offset + 3 + nameLength),
+      axisCount,
+      axisSize,
+      axes: [],
+      values: [],
+      size: 4 + nameLength + 2 + axisCount * axisSize * 4
+    };
+
+    let axisOffset = offset + 7 + nameLength;
+    
+    for (let i = 0; i < axisCount; i++) {
+      const axis: number[] = [];
+      for (let j = 0; j < axisSize; j++) {
+        axis.push(buffer.readFloatLE(axisOffset));
+        axisOffset += 4;
+      }
+      map.axes.push(axis);
+    }
+
+    map.values = new Array(Math.pow(axisSize, axisCount)).fill(0);
+    for (let i = 0; i < map.values.length; i++) {
+      map.values[i] = buffer.readFloatLE(axisOffset);
+      axisOffset += 4;
+    }
+
+    return map;
+  }
+
+  private convertKPToCanonical(
+    kpMap: KPMap, 
+    metadata: MapConversionMetadata
+  ): CanonicalMap
