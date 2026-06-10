@@ -1,0 +1,38 @@
+FROM node:20-alpine
+
+LABEL maintainer="NeuroTune AI Team"
+LABEL description="NeuroTune AI Backend API"
+
+# Installer les dépendances système
+RUN apk add --no-cache curl
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier les fichiers de dépendances
+COPY package.json pnpm-lock.yaml ./
+
+# Installer pnpm
+RUN npm install -g pnpm
+
+# Installer les dépendances
+RUN pnpm install --frozen-lockfile --prod
+
+# Copier le code source
+COPY . .
+
+# Générer le client Prisma
+RUN npx prisma generate
+
+# Build
+RUN pnpm build
+
+# Exposer le port
+EXPOSE 3001
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3001/health || exit 1
+
+# Lancer l'application
+CMD ["node", "dist/server.js"]
