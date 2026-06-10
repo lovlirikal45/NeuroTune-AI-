@@ -1,10 +1,21 @@
 {
   "name": "neurotune-ai",
+  "version": "1.0.0",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "description": "Professional AI-Assisted ECU Calibration Platform",
   "scripts": {
-    "dev": "echo 'dev'",
-    "build": "echo 'build'",
-    "lint": "echo 'lint'"
-  }
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "test": "turbo test",
+    "lint": "turbo lint",
+    "format": "prettier --write .",
+    "setup": "bash scripts/setup.sh",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
 }
