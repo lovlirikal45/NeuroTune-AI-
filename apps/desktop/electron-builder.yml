@@ -1,0 +1,43 @@
+appId: ai.neurotune.desktop
+productName: NeuroTune AI
+copyright: Copyright © 2024 NeuroTune AI
+
+directories:
+  output: dist-electron
+  buildResources: assets
+
+win:
+  target:
+    - target: nsis
+      arch: [x64, ia32]
+    - target: portable
+      arch: [x64]
+  icon: assets/icon.ico
+  artifactName: ${productName}-${version}-${arch}.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: NeuroTune AI
+  installerIcon: assets/icon.ico
+  uninstallerIcon: assets/icon.ico
+  license: LICENSE.txt
+
+portable:
+  artifactName: ${productName}-${version}-portable.${ext}
+
+publish:
+  provider: github
+  owner: lovlirikal45
+  repo: NeuroTune-AI-
+  releaseType: release
+
+files:
+  - main.js
+  - preload.js
+  - dist-web/**/*
+  - assets/**/*
+  - package.json
